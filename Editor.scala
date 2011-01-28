@@ -78,8 +78,8 @@ object Editor {
   def wgrid = EditorPanel.wgrid
   def hgrid = EditorPanel.hgrid
   def grid(w:Option[Int], h:Option[Int]) {
-    EditorPanel.wgrid = w
-    EditorPanel.hgrid = h
+    EditorPanel.wgrid = if(w.getOrElse(0) > 0) w else None
+    EditorPanel.hgrid = if(h.getOrElse(0) > 0) h else None
     EditorPanel.repaint
   }
   def selectedRect = EditorPanel.selectedRect.rect
