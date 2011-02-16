@@ -66,7 +66,6 @@ object Editor {
   lazy val frame = new Frame {
     title = "Editor"
     contents = ui
-    centerOnScreen
     peer.setDefaultCloseOperation(0)
     resizable = false
   }

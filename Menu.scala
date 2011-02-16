@@ -17,7 +17,8 @@ object Menu extends ComponentsCollection {
            textfield("height"), button("resize")),
       List(textfield("wgrid"), label("x"), 
            textfield("hgrid"), button("grid")),
-      List(button("save"), button("load"), button("help"))
+      List(button("save"), button("saveSame", "上書き")),
+      List(button("load"), button("help"))
     ) foreach { c =>
       contents += new FlowPanel { contents ++= c }
     }
@@ -30,28 +31,35 @@ object Menu extends ComponentsCollection {
   def initConfig {
     try {
       val config = xml.XML.loadFile(CONFIG_PATH)
-      val path = (config \ "path").text
-      if(path != "") chooserPath = Some(new File(path))
 
       text("wgrid") = (config \ "wgrid").text
       text("hgrid") = (config \ "hgrid").text
       gridClicked
-    } catch {
-      case _:java.io.FileNotFoundException =>
-    }
 
+      val path = (config \ "path").text
+      if(path != "") {
+        val f = new File(path)
+        if(f.exists) chooserPath = Option(f)
+      }
+
+      chooserPath foreach load
+    } catch {
+      case _:java.io.FileNotFoundException => 
+    }
     resizeClicked
   }
+
 
   def fileChooser(dialog:(FileChooser) => FileChooser.Result.Value)
     :Option[File] = 
   {
-    val chooser = new FileChooser(chooserPath.getOrElse(null))
+    val chooser = new FileChooser(chooserPath.getOrElse(new File(".")))
     chooser.fileFilter = 
       new javax.swing.filechooser.FileNameExtensionFilter("XMLファイル", "xml")
 
     val ret = dialog(chooser)
     if(ret == FileChooser.Result.Approve) {
+      // @see TODO-007
       chooserPath = Some(chooser.selectedFile)
       chooserPath
     } else None
@@ -66,6 +74,13 @@ object Menu extends ComponentsCollection {
   }
 
   def saveClicked = fileChooser(_.showSaveDialog(ui)).foreach(save)
+  def saveSameClicked {
+    try {
+      chooserPath foreach save
+    } catch {
+      case _:java.io.FileNotFoundException => 
+    }
+  }
   def loadClicked = fileChooser(_.showOpenDialog(ui)).foreach(load)
   def helpClicked = Help.open
 
@@ -112,7 +127,7 @@ object Menu extends ComponentsCollection {
   <id>{ct}</id>
   <kind>{e.kind}</kind>
   <name>{e.name}</name>
-  <text>{e.name}</text>
+  <text>{e.text}</text>
   <x>{e.x}</x><y>{e.y}</y>
   <w>{e.w}</w><h>{e.h}</h>
   <size>{e.size}</size>
@@ -135,12 +150,15 @@ object Menu extends ComponentsCollection {
 
     xml.XML.save(name+ext, ui, "utf-8")
     xml.XML.save(CONFIG_PATH, config, "utf-8")
+    Message.echo("save: " + file)
+    Editor.title = "Editor - " + file.getName
   }
 
   def load(file:File) {
-    Layer.clearElements
-
     val xml = scala.xml.XML.loadFile(file.getAbsolutePath)
+    Layer.clearElements
+    Editor.title = "Editor - " + file.getName
+
     text("width")  = (xml \ "width").text
     text("height") = (xml \ "height").text
     resizeClicked

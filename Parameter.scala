@@ -42,9 +42,10 @@ object Parameter extends ComponentsCollection {
     } 
     if(len > 1) {
       name = "multi selected"
-      val r = Editor.selectedRect
-      x = r.x; y = r.y
-      w = r.width; h = r.height
+      // @see main.scala TODO-002
+//      val r = Editor.selectedRect
+//      x = r.x; y = r.y
+//      w = r.width; h = r.height
     }
     text("name") = name; text("text") = txt
     text("x") = x; text("y") = y

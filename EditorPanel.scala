@@ -24,6 +24,8 @@ private[editor] object EditorPanel extends Panel
   override lazy val peer = 
     new javax.swing.JPanel(null) with SuperMixin
 
+  background = Color.white
+
   /**
    * Wait     - 待ち
    * Selected - Componentが選択されているとき
@@ -171,10 +173,24 @@ private[editor] object EditorPanel extends Panel
   override def paint(g:Graphics2D) {
     super.paint(g)
 
+    g.setColor(new Color(0, 0, 0, 32))
+    wgrid foreach { w =>
+      val xmax = size.width / w
+      for(i <- 0 until xmax) {
+        g.drawLine(i*w, 0, i*w, size.height)
+      }
+    }
+    hgrid foreach { h =>
+      val ymax = size.height / h
+      for(i <- 0 until ymax) {
+        g.drawLine(0, i*h, size.width, i*h)
+      }
+    }
+
     def drawHitElements {
+      g.setColor(new Color(127, 255, 127))
       Layer.selected foreach { e =>
         val (x, y, w, h) = e.rect
-        g.setColor(new Color(127, 255, 127))
         g.drawRect(x, y, w-1, h-1)
         g.drawRect(x-1, y-1, w+1, h+1)
       }
@@ -189,20 +205,6 @@ private[editor] object EditorPanel extends Panel
       case Selected =>
         drawHitElements
         selectedRect.draw(g)
-    }
-
-    g.setColor(new Color(0, 0, 0, 80))
-    wgrid foreach { w =>
-      val xmax = size.width / w
-      for(i <- 0 until xmax) {
-        g.drawLine(i*w, 0, i*w, size.height)
-      }
-    }
-    hgrid foreach { h =>
-      val ymax = size.height / h
-      for(i <- 0 until ymax) {
-        g.drawLine(0, i*h, size.width, i*h)
-      }
     }
   }
 

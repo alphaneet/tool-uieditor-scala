@@ -9,18 +9,52 @@ import java.awt.Font
 
 /*
  * TODO LIST
- * Element.kindのenum化 もしくは クラス化(EPoint extends Element)
- * EPointとクラス化したらoverride w, hでサイズ変更できないようにする
+ * scalaTestをつかってかＢＤＤなりＴＤＤでやってみる
  *
+ * TODO-001
  * Layerの順番の変更を実装
  * EditorのComponentの描画順位の切り替えがめんどくさいので
  * processingでEditor部分を書き直す
  *
+ * TODO-002
+ * 複数選択したときのParameter
+ * すべての要素のsizeが一緒なら表示する
+ * x, y, w, h が表示してくれるのはありがたいが
+ * update時に変更がなかったら一括更新しない（毎回textfieldの値を消すのがめんどくさい)
+ *
+ * Element.kindのenum化 もしくは クラス化(EPoint extends Element)
+ * EPointとクラス化したらoverride w, hでサイズ変更できないようにする
+ *
+ * TODO-003
+ * Ctrl-C Ctrl-Vの実装
+ *
+ * TODO-004
+ * 名前にstage<ct>とかしてあれば<ct>の部分に
+ * 自動的にカウントをしてくれたりすると便利
+ *
+ * TODO-005
+ * リストのソートとかもあればうれぴー
+ *
+ * TODO-006
  * 長いこと使いそうになった時のみUndoの実装
  * いまいちやり方がわからない。
  * Effective JavaかオライリーのSwingかのどっちかに
  * Java版のUndoの実装があった気がするのでやる時は図書館で復習
  *
+ * TODO-007 Menu.scala:64:chooserPath = Some(chooser.selectedFile)
+ * フィルターの拡張子が足されない
+ * testと入力して保存すると selectedFile はtestなのに
+ * xml拡張子のフィルタがついてると実際には test.xml が生成されて困る
+ * String.endWith(".xml")でなければ.xmlを追加するみたいな処理が望ましい
+ * 
+ * TODO-008
+ * Labelとボタンの色指定が出来るようになるとうれしいってかしろ
+ * 16進数を文字列をIntに当てはめる方法ははてぶにあった気がする
+ *
+ * TODO-009
+ * 目印という機能前提のRECTがほしい
+ * 保存のときデータxmlに吐き出さないでconfig.xmlのほうに吐き出す
+ * レイヤーも別にしたいかも
  */
 
 object Cursor {
@@ -68,6 +102,9 @@ class Method(target:AnyRef, name:String, types:Class[_]*) {
   }
 }
 
+object Message {
+  def echo(any:Any) = println(any.toString)
+}
 
 object Main extends SimpleSwingApplication { 
   def separator:Panel = {
@@ -104,8 +141,12 @@ object Main extends SimpleSwingApplication {
       layout(separator) = Center
       layout(Layer.ui) = East
     }
-
     Menu.initConfig
+
+    centerOnScreen
+    location = (location.x, 0)
+    Editor.location = (location.x, size.height)
+
     Editor.visible = true
     initialize = true
   }
